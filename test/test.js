@@ -1102,7 +1102,7 @@ testCM("measureEndOfLine", function(cm) {
   cm.setValue(cm.getValue() + "\n\n");
   var endPos = cm.charCoords(Pos(0, 18), "local");
   is(endPos.top > lh * .8, "not at top");
-  is(endPos.left > w - 20, "not at right");
+  is(endPos.left > w - 20, "not at right"); // FIXME: ? this is at right
   endPos = cm.charCoords(Pos(0, 18));
   eqPos(cm.coordsChar({left: endPos.left, top: endPos.top + 5}), Pos(0, 18));
 

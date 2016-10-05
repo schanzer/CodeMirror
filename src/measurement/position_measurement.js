@@ -432,9 +432,11 @@ function coordsCharInner(cm, lineObj, lineNo, x, y) {
   let innerOff = y - heightAtLine(lineObj)
   let wrongLine = false, adjust = 2 * cm.display.wrapper.clientWidth
   let preparedMeasure = prepareMeasureForLine(cm, lineObj)
+//console.log( "=====", x, innerOff, cm.display.wrapper.clientWidth )
 
   function getX(ch) {
     let sp = cursorCoords(cm, Pos(lineNo, ch), "line", lineObj, preparedMeasure)
+//console.log( ch + ":", sp )
     wrongLine = true
     if (innerOff > sp.bottom) return sp.left - adjust
     else if (innerOff < sp.top) return sp.left + adjust
@@ -451,6 +453,7 @@ function coordsCharInner(cm, lineObj, lineNo, x, y) {
   if (x > toX && !toOutside) return PosWithInfo(lineNo, to, null, toOutside, 1)
   // Do a binary search between these bounds.
   for (let dont_do_this_forever = lineObj.text.length * 2;--dont_do_this_forever;) {
+//console.log( from + ": " + fromX, to + ": " + toX )
     if (bidi ? to == from || to == moveVisually(lineObj, from, 1) : to - from <= 1) {
       let ch = x < fromX || x - fromX <= toX - x ? from : to
       let outside = ch == from ? fromOutside : toOutside
@@ -471,6 +474,7 @@ function coordsCharInner(cm, lineObj, lineNo, x, y) {
       middle += step
     }
     let middleX = getX(middle)
+//console.log("middle", middle + ": " + middleX, wrongLine)
     if (middleX > x) {to = middle; toX = middleX; toOutside = wrongLine; dist = step}
     else {from = middle; fromX = middleX; fromOutside = wrongLine; dist -= step}
   }
