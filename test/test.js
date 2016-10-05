@@ -2218,21 +2218,43 @@ function fillTillWraps(cm, c) {
 
 function assertMonotoneCursorMovement(cm, len) {
   var prevCoords, coords
-  for(var i = 0; i < len; ++i) {
-    eq(cm.doc.getCursor().ch, i)
+  var i
+  for(i = 0; i < len; ++i) {
+    CodeMirror.commands.goCharRight(cm)
+    var cursor = cm.doc.getCursor();
+    eq(cursor.ch, i + 1);
+    eq(cursor.sticky, "before");
     coords = cm.cursorCoords()
     eq(coords.left, coords.right)
     if (prevCoords) {
-      if (i != len - 1) {
-        eq(coords.left > prevCoords.left, true)
-        eq(coords.top, prevCoords.top)
+      if (i == len - 1) {
+        is(coords.left < prevCoords.left)
+        is(coords.top > prevCoords.top, "line wrap")
       } else {
-        eq(coords.left < prevCoords.left, true)
-        eq(coords.top > prevCoords.top, true)
+        is(coords.left > prevCoords.left)
+        eq(coords.top, prevCoords.top, "same height as previous position")
       }
     }
     prevCoords = coords
-    CodeMirror.commands.goCharRight(cm)
+  }
+  prevCoords = null
+  for(; i > 0; --i) {
+    CodeMirror.commands.goCharLeft(cm)
+    var cursor = cm.doc.getCursor();
+    eq(cursor.ch, i - 1)
+    eq(cursor.sticky, "after");
+    coords = cm.cursorCoords()
+    eq(coords.left, coords.right)
+    if (prevCoords) {
+      if (i == len - 1) {
+        is(coords.left > prevCoords.left)
+        is(coords.top < prevCoords.top, "line wrap")
+      } else {
+        is(coords.left < prevCoords.left)
+        eq(coords.top, prevCoords.top, "same height as previous position")
+      }
+    }
+    prevCoords = coords
   }
 }
 
@@ -2257,22 +2279,27 @@ testCM("bidiCursor", function(cm) {
       // FIXME: 35 and 36 are probably wrong, at least dubious
       // 33 is after ١, 35 is after ٢, 36 is before ٣
       if (i != 33 && i != 35 && i != 36) {
-        eq(coords.left > prevCoords.left, true)
+        is(coords.left > prevCoords.left)
       } else {
-        eq(coords.left < prevCoords.left, true)
+        is(coords.left < prevCoords.left)
       }
     }
     prevCoords = coords
   }
 }, {value: "In Arabic numerals, »1 2 3« is »١ ٢ ٣«."})
 
-testCM("positions", function(cm) {
+function makeItWrapAfter(cm, pos) {
   var firstLineTop = cm.cursorCoords(Pos(0, 0)).top;
   var w = 1;
   cm.setSize(w);
-  while (cm.charCoords(Pos(0, 2)).top != firstLineTop) {
+  while (cm.charCoords(pos).top != firstLineTop) {
     cm.setSize(++w);
   }
+}
+
+testCM("positions", function(cm) {
+  makeItWrapAfter(cm, Pos(0, 2));
+  var firstLineTop = cm.cursorCoords(Pos(0, 0)).top;
   var secondLineTop = cm.charCoords(Pos(0, 3)).top;
   is(secondLineTop > firstLineTop);
   var lastLeft = -1, targetTop = firstLineTop;
@@ -2302,4 +2329,12 @@ testCM("positions", function(cm) {
 
     lastLeft = coords1.left;
   }
+}, {value: "12345", lineWrapping: true})
+
+
+testCM("delete_wrapped", function(cm) {
+  makeItWrapAfter(cm, Pos(0, 2));
+  cm.doc.setCursor(Pos(0, 3, "after"));
+  cm.deleteH(-1, "char");
+  eq(cm.getLine(0), "1245");
 }, {value: "12345", lineWrapping: true})
