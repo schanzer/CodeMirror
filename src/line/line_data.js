@@ -166,6 +166,7 @@ function buildToken(builder, text, style, startStyle, endStyle, title, css) {
       } else {
         txt = builder.cm.options.specialCharPlaceholder(m[0])
         txt.setAttribute("cm-text", m[0])
+        txt.style.unicodeBidi = "embed"
         if (ie && ie_version < 9) content.appendChild(elt("span", [txt]))
         else content.appendChild(txt)
         builder.col += 1
