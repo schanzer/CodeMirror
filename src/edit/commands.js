@@ -160,7 +160,6 @@ function lineStart(cm, lineN) {
   let ch = 0, sticky = "after"
   if (order) {
     let pos = 0
-    while (order[pos].from == order[pos].to) ++pos
     ch = bidiLeft(order[pos])
     sticky = order[pos].level == 1 ? "before" : "after"
   }

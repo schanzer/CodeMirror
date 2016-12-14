@@ -8,7 +8,6 @@ export function endOfLine(visually, cm, lineObj, dir) {
     let order = getOrder(lineObj)
     if (order) {
       let i = dir < 0 ? order.length - 1 : 0
-      while (order[i].to == order[i].from) i += dir
       let part = order[i]
       // With a wrapped rtl chunk (possibly spanning multiple bidi parts),
       // it could be that the last bidi part is not on the last visual line,
@@ -106,7 +105,6 @@ export function moveVisually(cm, line, start, dir, byUnit, startSticky) {
   while (partPos + dir >= 0 && partPos + dir < bidi.length) {
     partPos += dir
     part = bidi[partPos]
-    if (part.from == part.to) continue
     let ch = dir > 0 ? part.from : mv(part.to, -1)
     if (dir > 0 ? (ch > lastChar) : (ch < lastChar)) continue
     let moveInStorageOrder = (dir > 0) == (part.level != 1)
