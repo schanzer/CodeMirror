@@ -7,7 +7,7 @@ import { getLine, lineNo } from "../line/utils_line"
 import { Range } from "../model/selection"
 import { selectAll } from "../model/selection_updates"
 import { countColumn, sel_dontScroll, sel_move, spaceStr } from "../util/misc"
-import { getOrder, lineLeft, lineRight } from "../util/bidi"
+import { bidiLeft, getOrder, lineRight } from "../util/bidi"
 
 // Commands are parameter-less actions that can be performed on an
 // editor, mostly used for keybindings.
@@ -157,8 +157,15 @@ function lineStart(cm, lineN) {
   let visual = visualLine(line)
   if (visual != line) lineN = lineNo(visual)
   let order = getOrder(visual)
-  let ch = !order ? 0 : order[0].level % 2 ? lineRight(visual) : lineLeft(visual)
-  return Pos(lineN, ch)
+  let ch = 0, sticky = "after"
+  if (order) {
+    let pos = 0
+    while (order[pos].from == order[pos].to) ++pos
+    ch = bidiLeft(order[pos])
+    sticky = order[pos].level == 1 ? "before" : "after"
+  }
+  // let {sticky, ch} = lineLeft(line)
+  return Pos(lineN, ch, sticky)
 }
 function lineEnd(cm, lineN) {
   let merged, line = getLine(cm.doc, lineN)
@@ -166,8 +173,11 @@ function lineEnd(cm, lineN) {
     line = merged.find(1, true).line
     lineN = null
   }
+/*
   let order = getOrder(line)
   let ch = !order ? line.text.length : order[0].level % 2 ? lineLeft(line) : lineRight(line)
+*/
+  let ch = lineRight(line)
   return Pos(lineN == null ? lineNo(line) : lineN, ch)
 }
 function lineStartSmart(cm, pos) {
