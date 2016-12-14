@@ -174,7 +174,7 @@ function testVim(name, run, opts, expectedFail) {
         } else {
           pos = makeCursor(line, ch);
         }
-        eqPos(pos, cm.getCursor());
+        eqPos(cm.getCursor(), pos);
       }
     }
     function fakeOpenDialog(result) {
@@ -1446,7 +1446,7 @@ testVim('i_overwrite_backspace', function(cm, vim, helpers) {
   helpers.doKeys('i');
   helpers.doKeys('<Ins>');
   helpers.doInsertModeKeys('Backspace');
-  helpers.assertCursorAt(0, 9);
+  helpers.assertCursorAt(Pos(0, 9, "after"));
   eq('0123456789', cm.getValue());
 }, { value: '0123456789'});
 testVim('A', function(cm, vim, helpers) {

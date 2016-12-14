@@ -7,8 +7,9 @@
     if (sels.length != given)
       throw new Failure("expected " + given + " selections, found " + sels.length);
     for (var i = 0, p = 1; i < given; i++, p += 4) {
-      var anchor = Pos(arguments[p], arguments[p + 1]);
-      var head = Pos(arguments[p + 2], arguments[p + 3]);
+      var anchor = Pos(arguments[p], arguments[p + 1], sels[i].anchor.sticky);
+      var head = Pos(arguments[p + 2], arguments[p + 3], sels[i].head.sticky);
+      // FIXME: maybe we need eqCharPos an eqCursorPos?
       eqPos(sels[i].anchor, anchor, "anchor of selection " + i);
       eqPos(sels[i].head, head, "head of selection " + i);
     }
@@ -20,7 +21,8 @@
       throw new Failure("expected " + given + " selections, found " + sels.length);
     for (var i = 0, p = 1; i < given; i++, p += 2) {
       eqPos(sels[i].anchor, sels[i].head, "something selected for " + i);
-      var head = Pos(arguments[p], arguments[p + 1]);
+      var head = Pos(arguments[p], arguments[p + 1], sels[i].head.sticky);
+      // FIXME: maybe we need eqCharPos an eqCursorPos?
       eqPos(sels[i].head, head, "selection " + i);
     }
   }
