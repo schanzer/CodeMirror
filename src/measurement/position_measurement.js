@@ -443,14 +443,14 @@ function coordsCharInner(cm, lineObj, lineNo, x, y) {
   }
 
   let bidi = getOrder(lineObj), dist = lineObj.text.length
-  let from = lineLeft(lineObj), to = lineRight(lineObj)
+  let from = lineLeft(lineObj), to = lineRight(lineObj) // FIXME: This is broken with wrapped lines
   let fromX = getX(from), fromOutside = wrongLine, toX = getX(to), toOutside = wrongLine
 
   if (x < 0) x = 0
   if (x > cm.display.wrapper.clientWidth) x = cm.display.wrapper.clientWidth
-  if (x > toX) return PosWithInfo(lineNo, to, null, toOutside, 1)
+  if (x > toX && !toOutside) return PosWithInfo(lineNo, to, null, toOutside, 1)
   // Do a binary search between these bounds.
-  for (;;) {
+  for (let dont_do_this_forever = lineObj.text.length * 2;--dont_do_this_forever;) {
     if (bidi ? to == from || to == moveVisually(lineObj, from, 1) : to - from <= 1) {
       let ch = x < fromX || x - fromX <= toX - x ? from : to
       let outside = ch == from ? fromOutside : toOutside
