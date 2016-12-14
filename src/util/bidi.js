@@ -118,16 +118,19 @@ export let bidiOrdering = (function() {
   let arabicTypes = "nnnnnnNNr%%r,rNNmmmmmmmmmmmrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrmmmmmmmmmmmmmmmmmmmmmnnnnnnnnnn%nnrrrmrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrmmmmmmmnNmmmmmmrrmmNmmmmrr1111111111"
   function charType(code) {
     if (code <= 0xf7) return lowTypes.charAt(code)
-    else if (0x590 <= code && code <= 0x5f4) return "R"
+    else if (0x590 <= code && code <= 0x5c7) return (code == 0x5be || code == 0x5c0 || code == 0x5c3 || code == 0x5c6) ? "R" : "m"
+    else if (isExtendingChar(String.fromCharCode(code))) return "m"
+    else if (0x5c8 <= code && code <= 0x5f4) return "R"
     else if (0x600 <= code && code <= 0x6f9) return arabicTypes.charAt(code - 0x600)
     else if (0x6ee <= code && code <= 0x8ac) return "r"
     else if (0x2000 <= code && code <= 0x200b) return "w"
     else if (code == 0x200c) return "b"
+    else if (code == 0x02c7) return "N"
     else return "L"
   }
 
   let bidiRE = /[\u0590-\u05f4\u0600-\u06ff\u0700-\u08ac]/
-  let isNeutral = /[stwN]/, isStrong = /[LRr]/, countsAsLeft = /[Lb1n]/, countsAsNum = /[1n]/
+  let isNeutral = /[stwN]/, isStrong = /[LRr]/, countsAsLeft = /[Lb1]/, countsAsNum = /[1n]/
   // Browsers seem to always treat the boundaries of block elements as being L.
   let outerType = "L"
 
